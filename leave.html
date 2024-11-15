@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Parking Fees</title>
+    <link rel="stylesheet" href="leave.css">
+
+    <style>
+        /* General styles for the page */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://images.summitmedia-digital.com/topgear/images/2021/09/16/parking-lot-sale-boston-1631756746.jpg');
+    background-size: cover;
+    
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+        }
+
+        /* Container styling */
+        .container {
+            background-color: white;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Box shadow for depth */
+            animation: fadeIn 1s ease-in-out; /* Fade-in animation */
+        }
+
+        /* Header style */
+        h1 {
+            font-size: 2em;
+            color: #00796b; /* Green color matching the previous page */
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+            display: block;
+        }
+
+        /* Input field style */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #f9f9f9; /* Light background color for inputs */
+        }
+
+        /* Button style */
+        button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s ease; /* Smooth transition on hover */
+        }
+
+        button:hover {
+            background-color: #004d40; /* Darker shade on hover */
+        }
+
+        button:active {
+            transform: scale(0.98); /* Slight scale effect when button is clicked */
+        }
+
+        /* Display area for calculated fee */
+        #calculatedFee {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 1.1em;
+            color: #555;
+            display: none;
+        }
+
+        #calculatedFee h2 {
+            font-size: 1.5em;
+            color: #00796b; /* Green color matching the previous page */
+            margin-bottom: 15px;
+        }
+
+        /* Styling for the table of parking details */
+        #feeDetailsTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #feeDetailsTable th,
+        #feeDetailsTable td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #feeDetailsTable th {
+            background-color: #00796b;
+            color: white;
+        }
+
+        #feeDetailsTable td {
+            background-color: #f9f9f9;
+        }
+
+        /* Display for No Spot Found */
+        #noSpotFound {
+            margin-top: 20px;
+            color: red;
+            font-size: 1.2em;
+        }
+
+        /* Keyframe for fade-in effect */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Calculate Parking Fees</h1>
+
+        <!-- Vehicle Number Input -->
+        <label for="vehicleNumber">Vehicle Number</label>
+        <input type="text" id="vehicleNumber" placeholder="Enter vehicle number" required>
+
+        <!-- Time of Exit Input -->
+        <label for="exitTime">Time of Exit</label>
+        <input type="time" id="exitTime" required>
+
+        <!-- Submit Button to Calculate Fees -->
+        <button onclick="calculateFees()">Calculate Fees</button>
+
+        <!-- Display Calculated Fee -->
+        <div id="calculatedFee">
+            <h2>Parking Fee Details</h2>
+            <table id="feeDetailsTable">
+                <tr>
+                    <th>Vehicle Number</th>
+                    <td id="displayVehicleNo"></td>
+                </tr>
+                <tr>
+                    <th>Entry Time</th>
+                    <td id="displayEntryTime"></td>
+                </tr>
+                <tr>
+                    <th>Exit Time</th>
+                    <td id="displayExitTime"></td>
+                </tr>
+                <tr>
+                    <th>Total Parked Time</th>
+                    <td id="displayParkedTime"></td>
+                </tr>
+                <tr>
+                    <th>Total Parking Fee</th>
+                    <td id="displayParkingFee"></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Back to Main Page Button -->
+        <button onclick="window.location.href='index.html'">Back to Main Page</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        // Firebase config (replace with your actual config)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBwKZx7zGayg6NLVt0wsDLOV2j3IMo4Lh0",
+            authDomain: "car-parking-management-s-1f1d8.firebaseapp.com",
+            databaseURL: "https://car-parking-management-s-1f1d8-default-rtdb.firebaseio.com",
+            projectId: "car-parking-management-s-1f1d8",
+            storageBucket: "car-parking-management-s-1f1d8.firebasestorage.app",
+            messagingSenderId: "314331985346",
+            appId: "1:314331985346:web:dff9f9f08b8cf3a120525b",
+            measurementId: "G-0FNLYV6SXT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to calculate parking fees and reset the spot
+        window.calculateFees = async function() {
+            const vehicleNumber = document.getElementById('vehicleNumber').value.trim().toUpperCase();
+            const exitTime = document.getElementById('exitTime').value;
+
+            if (!vehicleNumber || !exitTime) {
+                alert("Please enter both vehicle number and exit time.");
+                return;
+            }
+
+            console.log("Vehicle Number:", vehicleNumber);
+            console.log("Exit Time:", exitTime);
+
+            const parkingRef = ref(db, 'parking_spots');
+            try {
+                const snapshot = await get(parkingRef);
+                if (snapshot.exists()) {
+                    const parkingSpots = snapshot.val();
+                    let found = false;
+
+                    // Loop through all floors, blocks, and spots to find the matching vehicle number
+                    for (const floor in parkingSpots) {
+                        if (found) break;
+                        for (const block in parkingSpots[floor]) {
+                            if (found) break;
+                            for (let i = 1; i <= 10; i++) {
+                                const spotKey = `spot_${i}`;
+                                const spot = parkingSpots[floor][block][spotKey];
+                                console.log("Checking spot:", spotKey, spot);
+
+                                if (spot.vehicleNo && spot.vehicleNo === vehicleNumber) {
+                                    found = true;
+
+                                    // Calculate the fee (assuming $5 per hour for simplicity)
+                                    const entryTime = spot.time;
+                                    const entryHour = parseInt(entryTime.split(":")[0], 10);
+                                    const entryMinute = parseInt(entryTime.split(":")[1], 10);
+                                    const exitHour = parseInt(exitTime.split(":")[0], 10);
+                                    const exitMinute = parseInt(exitTime.split(":")[1], 10);
+
+                                    const entryTotalMinutes = entryHour * 60 + entryMinute;
+                                    const exitTotalMinutes = exitHour * 60 + exitMinute;
+                                    const parkedTime = exitTotalMinutes - entryTotalMinutes;
+                                    const fee = (parkedTime * 1).toFixed(2);
+
+                                    // Display the fee details in a structured table
+                                    document.getElementById('displayVehicleNo').textContent = vehicleNumber;
+                                    document.getElementById('displayEntryTime').textContent = spot.time;
+                                    document.getElementById('displayExitTime').textContent = exitTime;
+                                    document.getElementById('displayParkedTime').textContent = `${parkedTime} minutes`;
+                                    document.getElementById('displayParkingFee').textContent = `$${fee}`;
+
+                                    document.getElementById('calculatedFee').style.display = 'block';
+
+                                    // Now, reset the parking spot to "free"
+                                    const spotRef = ref(db, `parking_spots/${floor}/${block}/${spotKey}`);
+                                    await set(spotRef, {
+                                        vehicleNo: "",
+                                        name: "",
+                                        time: "",
+                                        typeOfVehicle: "",
+                                        status: "free"
+                                    });
+
+                                    console.log(`Spot ${spotKey} is now free.`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (!found) {
+                        alert("Vehicle not found in the parking system.");
+                    }
+                } else {
+                    console.log("No parking data available.");
+                }
+            } catch (error) {
+                console.error("Error reading parking data:", error);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

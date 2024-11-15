@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Car - Parking Management System</title>
+
+    <!-- Link to the external CSS file (if needed for additional styles) -->
+    <link rel="stylesheet" href="find.css">
+
+    <style>
+        /* General styles for the page */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://www.mdpavingpros.com/wp-content/uploads/2019/12/parking-lot.jpeg');
+    background-size: cover;
+    
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+        }
+
+        /* Container styling */
+        .container {
+            background-color: white;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Box shadow for depth */
+            animation: fadeIn 1s ease-in-out; /* Fade-in animation */
+        }
+
+        /* Header style */
+        h1 {
+            font-size: 2em;
+            color: #00796b; /* Green color matching the previous page */
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #555;
+            display: block;
+        }
+
+        /* Input field style */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #f9f9f9; /* Light background color for inputs */
+        }
+
+        /* Button style */
+        button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.3s ease; /* Smooth transition on hover */
+        }
+
+        button:hover {
+            background-color: #004d40; /* Darker shade on hover */
+        }
+
+        button:active {
+            transform: scale(0.98); /* Slight scale effect when button is clicked */
+        }
+
+        /* Display area for parking details */
+        #parkingDetails {
+            margin-top: 20px;
+            display: none;
+            text-align: left;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        #parkingDetails h2 {
+            font-size: 1.5em;
+            color: #00796b; /* Green color matching the previous page */
+            margin-bottom: 15px;
+        }
+
+        /* Display for No Spot Found */
+        #noSpotFound {
+            margin-top: 20px;
+            color: red;
+            font-size: 1.2em;
+        }
+
+        /* Keyframe for fade-in effect */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Find Your Parked Vehicle</h1>
+
+        <!-- Vehicle Number Input -->
+        <label for="vehicleNumber">Vehicle Number</label>
+        <input type="text" id="vehicleNumber" placeholder="Enter vehicle number" required>
+
+        <!-- Submit Button -->
+        <button onclick="findParkingSpot()">Find Parking</button>
+
+        <!-- Display Area for Parking Spot Details -->
+        <div id="parkingDetails">
+            <h2>Parking Spot Details</h2>
+            <p id="displayFloorNumber"></p>
+            <p id="displayBlockName"></p>
+            <p id="displaySpotNumber"></p>
+            <p id="displayVehicleNo"></p>
+            <p id="displayTypeOfVehicle"></p>
+            <p id="displayStatus"></p>
+            <p id="displayName"></p>
+            <p id="displayTime"></p>
+        </div>
+
+        <!-- Display No Spot Found Message -->
+        <div id="noSpotFound" style="display: none;">
+            <p>Sorry, no spot found for this vehicle number.</p>
+        </div>
+
+        <!-- Back to Main Page -->
+        <button onclick="window.location.href='index.html'">Back to Main Page</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="findpaking.js"></script> <!-- External JS file linking -->
+
+</body>
+
+</html>
